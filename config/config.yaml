@@ -1,0 +1,432 @@
+# =============================================================================
+# E-commerce Analytics Platform - Main Configuration
+# =============================================================================
+# 이 파일은 프로젝트의 모든 설정을 중앙 집중식으로 관리합니다.
+# 환경별, 모듈별 설정을 체계적으로 구성하여 유지보수성을 높입니다.
+# =============================================================================
+
+# 프로젝트 메타데이터
+# -----------------------------------------------------------------------------
+project:
+  name: 'E-commerce Analytics Platform'
+  version: '1.0.0'
+  description: '종합적인 전자상거래 고객 분석 및 추천 시스템'
+  author: 'genishk'
+  contact: 'sk4985@columbia.edu'
+
+# 환경 설정
+# -----------------------------------------------------------------------------
+environment:
+  # 실행 환경 (development, staging, production)
+  mode: 'development'
+
+  # 디버그 모드 (개발시 True, 운영시 False)
+  debug: true
+
+  # 로깅 레벨 (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  log_level: 'INFO'
+
+  # 시드값 (재현 가능한 결과를 위해)
+  random_seed: 42
+
+# 데이터 설정
+# -----------------------------------------------------------------------------
+data:
+  # 기본 경로들
+  paths:
+    raw: 'data/raw'
+    processed: 'data/processed'
+    external: 'data/external'
+    models: 'data/models'
+
+  # 데이터 생성 설정
+  generation:
+    # 생성할 고객 수
+    n_customers: 10000
+
+    # 생성할 상품 수
+    n_products: 1000
+
+    # 생성할 주문 수
+    n_orders: 50000
+
+    # 날짜 범위 (YYYY-MM-DD)
+    start_date: '2022-01-01'
+    end_date: '2024-12-31'
+
+    # 계절성 강도 (0.0-1.0)
+    seasonality_strength: 0.3
+
+    # 트렌드 강도 (0.0-1.0)
+    trend_strength: 0.2
+
+  # 데이터 검증 설정
+  validation:
+    # 최소/최대 주문 금액
+    min_order_amount: 1.0
+    max_order_amount: 10000.0
+
+    # 결측치 허용 비율 (0.0-1.0)
+    max_missing_ratio: 0.05
+
+    # 이상치 탐지 임계값 (표준편차)
+    outlier_threshold: 3.0
+
+# 분석 설정
+# -----------------------------------------------------------------------------
+analytics:
+  # RFM 분석 설정
+  rfm:
+    # 분석 기준일 (auto: 최신 날짜 자동 사용)
+    analysis_date: 'auto'
+
+    # R, F, M 각각의 분위수 (3: 저-중-고, 5: 매우낮음-낮음-중간-높음-매우높음)
+    quantiles: 5
+
+    # 세그먼트 정의 (스코어 기준)
+    segments:
+      champions: [5, 5, 5] # 최고 고객
+      loyal_customers: [4, 4, 4] # 충성 고객
+      potential_loyalists: [3, 3, 3] # 잠재 충성 고객
+      at_risk: [2, 2, 2] # 위험 고객
+      lost: [1, 1, 1] # 이탈 고객
+
+  # 고객 생애 가치 (CLV) 설정
+  clv:
+    # 예측 기간 (개월)
+    prediction_period: 12
+
+    # 할인율 (연간)
+    discount_rate: 0.1
+
+    # 생존 분석 기간 (일)
+    survival_period: 365
+
+  # 이탈 예측 설정
+  churn:
+    # 이탈 정의 (일수)
+    churn_threshold_days: 90
+
+    # 특성 생성 기간 (일)
+    feature_window_days: 180
+
+    # 예측 기간 (일)
+    prediction_window_days: 30
+
+# 머신러닝 설정
+# -----------------------------------------------------------------------------
+machine_learning:
+  # 공통 설정
+  common:
+    # 훈련/검증/테스트 분할 비율
+    train_size: 0.7
+    val_size: 0.15
+    test_size: 0.15
+
+    # 교차 검증 폴드 수
+    cv_folds: 5
+
+    # 성능 평가 지표
+    metrics:
+      classification: ['accuracy', 'precision', 'recall', 'f1', 'roc_auc']
+      regression: ['mae', 'mse', 'rmse', 'r2']
+
+  # 특성 엔지니어링
+  feature_engineering:
+    # 범주형 변수 인코딩 방법
+    categorical_encoding: 'target' # onehot, label, target
+
+    # 수치형 변수 스케일링 방법
+    numerical_scaling: 'standard' # standard, minmax, robust
+
+    # 특성 선택 방법
+    feature_selection: 'importance' # importance, correlation, recursive
+
+    # 최대 특성 수
+    max_features: 50
+
+  # 모델별 하이퍼파라미터 (기본값)
+  models:
+    random_forest:
+      n_estimators: 100
+      max_depth: 10
+      min_samples_split: 5
+      min_samples_leaf: 2
+
+    xgboost:
+      n_estimators: 100
+      max_depth: 6
+      learning_rate: 0.1
+      subsample: 0.8
+      colsample_bytree: 0.8
+
+    lightgbm:
+      n_estimators: 100
+      max_depth: 6
+      learning_rate: 0.1
+      num_leaves: 31
+
+# 추천 시스템 설정
+# -----------------------------------------------------------------------------
+recommendation:
+  # 협업 필터링 설정
+  collaborative_filtering:
+    # 유사도 계산 방법 (cosine, pearson, euclidean)
+    similarity_method: 'cosine'
+
+    # 최소 공통 아이템 수
+    min_common_items: 5
+
+    # 추천 아이템 수
+    n_recommendations: 10
+
+    # 최소 평점 수 (사용자/아이템)
+    min_ratings: 5
+
+  # 콘텐츠 기반 필터링
+  content_based:
+    # 텍스트 유사도 방법 (tfidf, word2vec, bert)
+    text_similarity: 'tfidf'
+
+    # 범주형 특성 가중치
+    category_weight: 0.4
+
+    # 수치형 특성 가중치
+    numerical_weight: 0.6
+
+  # 딥러닝 추천
+  neural_cf:
+    # 임베딩 차원
+    embedding_dim: 64
+
+    # 은닉층 크기
+    hidden_layers: [128, 64, 32]
+
+    # 드롭아웃 비율
+    dropout_rate: 0.2
+
+    # 학습률
+    learning_rate: 0.001
+
+    # 배치 크기
+    batch_size: 256
+
+    # 에포크 수
+    epochs: 50
+
+# 시계열 예측 설정
+# -----------------------------------------------------------------------------
+forecasting:
+  # Prophet 설정
+  prophet:
+    # 계절성 설정
+    yearly_seasonality: true
+    weekly_seasonality: true
+    daily_seasonality: false
+
+    # 휴일 효과 포함 여부
+    holidays: true
+
+    # 성장 모델 (linear, logistic)
+    growth: 'linear'
+
+    # 예측 기간 (일)
+    forecast_days: 30
+
+  # ARIMA 설정
+  arima:
+    # 최대 차수 (p, d, q)
+    max_p: 5
+    max_d: 2
+    max_q: 5
+
+    # 계절성 차수 (P, D, Q, s)
+    seasonal: true
+    max_P: 2
+    max_D: 1
+    max_Q: 2
+    seasonal_period: 7
+
+  # LSTM 설정
+  lstm:
+    # 시퀀스 길이
+    sequence_length: 30
+
+    # LSTM 유닛 수
+    lstm_units: [50, 50]
+
+    # 드롭아웃 비율
+    dropout_rate: 0.2
+
+    # 학습률
+    learning_rate: 0.001
+
+    # 배치 크기
+    batch_size: 32
+
+    # 에포크 수
+    epochs: 100
+
+# 대시보드 설정
+# -----------------------------------------------------------------------------
+dashboard:
+  # Streamlit 설정
+  streamlit:
+    # 서버 포트
+    port: 8501
+
+    # 페이지 제목
+    page_title: 'E-commerce Analytics Dashboard'
+
+    # 레이아웃 (wide, centered)
+    layout: 'wide'
+
+    # 사이드바 초기 상태 (expanded, collapsed)
+    sidebar_state: 'expanded'
+
+    # 테마 (light, dark)
+    theme: 'light'
+
+  # 업데이트 주기
+  refresh:
+    # 실시간 지표 업데이트 간격 (초)
+    realtime_interval: 60
+
+    # 일별 리포트 업데이트 시간 (HH:MM)
+    daily_update_time: '06:00'
+
+    # 주별 리포트 업데이트 요일 (0: 월요일)
+    weekly_update_day: 0
+
+# API 설정
+# -----------------------------------------------------------------------------
+api:
+  # FastAPI 설정
+  fastapi:
+    # 서버 호스트
+    host: 'localhost'
+
+    # 서버 포트
+    port: 8000
+
+    # 디버그 모드
+    debug: true
+
+    # 자동 문서화 URL
+    docs_url: '/docs'
+    redoc_url: '/redoc'
+
+    # API 버전
+    version: 'v1'
+
+    # API 제목
+    title: 'E-commerce Analytics API'
+
+  # 보안 설정
+  security:
+    # API 키 (운영시 환경변수로 설정)
+    api_key: '${API_SECRET_KEY:your-secret-api-key}'
+
+    # JWT 시크릿 키
+    jwt_secret: '${JWT_SECRET_KEY:your-jwt-secret-key}'
+
+    # 토큰 만료 시간 (분)
+    token_expire_minutes: 30
+
+  # 요청 제한
+  rate_limiting:
+    # 분당 최대 요청 수
+    requests_per_minute: 100
+
+    # 일당 최대 요청 수
+    requests_per_day: 10000
+
+# 데이터베이스 설정
+# -----------------------------------------------------------------------------
+database:
+  # 기본 데이터베이스 (SQLite)
+  default:
+    type: 'sqlite'
+    path: 'data/ecommerce.db'
+
+  # Redis 캐시 (선택사항)
+  redis:
+    host: 'localhost'
+    port: 6379
+    db: 0
+    password: null
+
+    # 캐시 만료 시간 (초)
+    expire_time: 3600
+
+# 로깅 설정
+# -----------------------------------------------------------------------------
+logging:
+  # 로그 파일 경로
+  file_path: 'logs/app.log'
+
+  # 로그 파일 최대 크기 (MB)
+  max_size: 10
+
+  # 백업 파일 수
+  backup_count: 5
+
+  # 로그 포맷
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+  # 날짜 포맷
+  date_format: '%Y-%m-%d %H:%M:%S'
+
+# 모니터링 설정
+# -----------------------------------------------------------------------------
+monitoring:
+  # 성능 모니터링
+  performance:
+    # 메모리 사용량 임계값 (%)
+    memory_threshold: 80
+
+    # CPU 사용량 임계값 (%)
+    cpu_threshold: 80
+
+    # 디스크 사용량 임계값 (%)
+    disk_threshold: 90
+
+  # 데이터 품질 모니터링
+  data_quality:
+    # 데이터 프레시니스 임계값 (시간)
+    freshness_threshold: 24
+
+    # 데이터 볼륨 변화 임계값 (%)
+    volume_change_threshold: 20
+
+    # 스키마 검증 여부
+    schema_validation: true
+
+# 알림 설정 (선택사항)
+# -----------------------------------------------------------------------------
+notifications:
+  # 이메일 설정
+  email:
+    enabled: false
+    smtp_server: 'smtp.gmail.com'
+    smtp_port: 587
+    username: 'sk4985@columbia.edu'
+    password: '${SMTP_PASSWORD:your-app-password}'
+
+  # Slack 설정
+  slack:
+    enabled: false
+    webhook_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+    channel: '#analytics'
+# =============================================================================
+# 설정 사용 예시:
+#
+# from src.utils.config_loader import load_config
+# config = load_config()
+#
+# # 데이터 경로 가져오기
+# data_path = config['data']['paths']['raw']
+#
+# # 모델 하이퍼파라미터 가져오기
+# rf_params = config['machine_learning']['models']['random_forest']
+# =============================================================================
